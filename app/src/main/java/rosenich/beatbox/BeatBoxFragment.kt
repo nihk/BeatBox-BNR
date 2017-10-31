@@ -9,18 +9,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 
+private const val NUM_COLUMNS = 3
+
 class BeatBoxFragment : Fragment() {
-    private lateinit var beatBox: BeatBox
+    private val beatBox: BeatBox by lazy { BeatBox(activity) }
 
     companion object {
         fun newInstance() = BeatBoxFragment()
-        const val NUM_COLUMNS = 3
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        beatBox = BeatBox(activity)
+        retainInstance = true
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -33,15 +33,29 @@ class BeatBoxFragment : Fragment() {
         return view
     }
 
-    private class SoundHolder(inflater: LayoutInflater?, container: ViewGroup?)
-        : RecyclerView.ViewHolder(inflater?.inflate(R.layout.list_item_sound, container, false)) {
+    override fun onDestroy() {
+        super.onDestroy()
+        beatBox.release()
+    }
+
+    private inner class SoundHolder(inflater: LayoutInflater?, container: ViewGroup?)
+        : RecyclerView.ViewHolder(inflater?.inflate(R.layout.list_item_sound, container, false))
+        , View.OnClickListener {
 
         private val button = itemView.findViewById<Button>(R.id.list_item_sound_button)
         private lateinit var sound: Sound
 
+        init {
+            button.setOnClickListener(this)
+        }
+
         fun bindSound(sound: Sound) {
             this.sound = sound
             button.text = this.sound.name
+        }
+
+        override fun onClick(v: View?) {
+            beatBox.play(sound)
         }
     }
 

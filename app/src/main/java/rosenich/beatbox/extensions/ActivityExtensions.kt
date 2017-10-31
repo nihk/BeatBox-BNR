@@ -5,15 +5,14 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 
-/**
- * https://medium.com/thoughts-overflow/how-to-add-a-fragment-in-kotlin-way-73203c5a450b
- */
-
 fun AppCompatActivity.addFragment(@IdRes containerViewId: Int, fragment: Fragment)
     = doSupportFragmentTransaction { add(containerViewId, fragment)}
 
 fun AppCompatActivity.replaceFragment(@IdRes containerViewId: Int, fragment: Fragment)
     = doSupportFragmentTransaction { replace(containerViewId, fragment)}
+
+fun AppCompatActivity.removeFragment(fragment: Fragment)
+    = doSupportFragmentTransaction { remove(fragment) }
 
 private fun AppCompatActivity.doSupportFragmentTransaction(
         function: FragmentTransaction.() -> FragmentTransaction)
