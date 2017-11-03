@@ -7,7 +7,10 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+
+import kotlinx.android.synthetic.main.fragment_beat_box.*
+import kotlinx.android.synthetic.main.list_item_sound.view.*
+import rosenich.beatbox.extensions.inflate
 
 private const val NUM_COLUMNS = 3
 
@@ -20,17 +23,19 @@ class BeatBoxFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Audio should keep playing on a config change, therefore fragment instance is retained to enable that
         retainInstance = true
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater?.inflate(R.layout.fragment_beat_box, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) =
+            inflater.inflate(R.layout.fragment_beat_box, container, false)
 
-        val recyclerView = view?.findViewById<RecyclerView>(R.id.fragment_beat_box_recycler_view)
-        recyclerView?.layoutManager = GridLayoutManager(activity, NUM_COLUMNS)
-        recyclerView?.adapter = SoundAdapter(beatBox.sounds)
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        return view
+        fragment_beat_box_recycler_view.layoutManager = GridLayoutManager(activity, NUM_COLUMNS)
+        fragment_beat_box_recycler_view.adapter = SoundAdapter(beatBox.sounds)
     }
 
     override fun onDestroy() {
@@ -38,20 +43,16 @@ class BeatBoxFragment : Fragment() {
         beatBox.release()
     }
 
-    private inner class SoundHolder(inflater: LayoutInflater?, container: ViewGroup?)
-        : RecyclerView.ViewHolder(inflater?.inflate(R.layout.list_item_sound, container, false))
+    private inner class SoundHolder(itemView: View)
+        : RecyclerView.ViewHolder(itemView)
         , View.OnClickListener {
 
-        private val button = itemView.findViewById<Button>(R.id.list_item_sound_button)
         private lateinit var sound: Sound
-
-        init {
-            button.setOnClickListener(this)
-        }
 
         fun bindSound(sound: Sound) {
             this.sound = sound
-            button.text = this.sound.name
+            itemView.list_item_sound_button.text = this.sound.name
+            itemView.list_item_sound_button.setOnClickListener(this)
         }
 
         override fun onClick(v: View?) {
@@ -59,14 +60,14 @@ class BeatBoxFragment : Fragment() {
         }
     }
 
-    private inner class SoundAdapter(private val sounds: List<Sound>) : RecyclerView.Adapter<SoundHolder>() {
+    private inner class SoundAdapter(private val sounds: List<Sound>)
+        : RecyclerView.Adapter<SoundHolder>() {
 
-        override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int) =
-                SoundHolder(LayoutInflater.from(activity), parent)
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+                SoundHolder(parent.inflate(R.layout.list_item_sound))
 
-        override fun onBindViewHolder(holder: SoundHolder?, position: Int) {
-            holder?.bindSound(sounds[position])
-        }
+        override fun onBindViewHolder(holder: SoundHolder, position: Int) =
+                holder.bindSound(sounds[position])
 
         override fun getItemCount() = sounds.size
     }

@@ -29,7 +29,6 @@ class BeatBox(context: Context) {
                     val sound = Sound(assetPath)
                     load(sound)
                     sounds.add(sound)
-
                 }
             }
         } catch (ioe: IOException) {
